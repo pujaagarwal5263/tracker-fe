@@ -82,6 +82,8 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
     if (isActionLoading) return;
     setIsActionLoading(true);
 
+    let logId = todayLog?._id;
+
     if (!todayLog) {
       try {
         const newLog = await api.post('/logs', {
@@ -89,6 +91,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
           routineId: routine?._id
         });
         setTodayLog(newLog.data);
+        logId = newLog.data._id;
       } catch (error) {
         console.error('Error creating log:', error);
         setIsActionLoading(false);
@@ -98,7 +101,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
 
     try {
       await api.post('/logs/complete', {
-        logId: todayLog?._id,
+        logId,
         activityId,
         onTime: true,
         notes: ''
@@ -115,6 +118,8 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
     if (isActionLoading) return;
     setIsActionLoading(true);
 
+    let logId = todayLog?._id;
+
     if (!todayLog) {
       try {
         const newLog = await api.post('/logs', {
@@ -122,6 +127,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
           routineId: routine?._id
         });
         setTodayLog(newLog.data);
+        logId = newLog.data._id;
       } catch (error) {
         console.error('Error creating log:', error);
         setIsActionLoading(false);
@@ -131,7 +137,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
 
     try {
       await api.post('/logs/miss', {
-        logId: todayLog?._id,
+        logId,
         activityId,
         reason: ''
       });
