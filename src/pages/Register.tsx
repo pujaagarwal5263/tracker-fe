@@ -11,10 +11,13 @@ export default function Register({ setIsAuthenticated }: RegisterProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const response = await api.post('/auth/register', { name, email, password });
       localStorage.setItem('token', response.data.token);
@@ -22,6 +25,8 @@ export default function Register({ setIsAuthenticated }: RegisterProps) {
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,9 +69,10 @@ export default function Register({ setIsAuthenticated }: RegisterProps) {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Register
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
         <p className="text-center mt-4 text-gray-600">
