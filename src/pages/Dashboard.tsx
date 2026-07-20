@@ -41,6 +41,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [todayLog, setTodayLog] = useState<DailyLog | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
@@ -78,6 +79,9 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
   };
 
   const handleCompleteActivity = async (activityId: string) => {
+    if (isActionLoading) return;
+    setIsActionLoading(true);
+
     if (!todayLog) {
       try {
         const newLog = await api.post('/logs', {
@@ -87,6 +91,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
         setTodayLog(newLog.data);
       } catch (error) {
         console.error('Error creating log:', error);
+        setIsActionLoading(false);
         return;
       }
     }
@@ -101,10 +106,15 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
       fetchData();
     } catch (error) {
       console.error('Error completing activity:', error);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const handleMissActivity = async (activityId: string) => {
+    if (isActionLoading) return;
+    setIsActionLoading(true);
+
     if (!todayLog) {
       try {
         const newLog = await api.post('/logs', {
@@ -114,6 +124,7 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
         setTodayLog(newLog.data);
       } catch (error) {
         console.error('Error creating log:', error);
+        setIsActionLoading(false);
         return;
       }
     }
@@ -127,10 +138,15 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
       fetchData();
     } catch (error) {
       console.error('Error marking activity as missed:', error);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const handleUndoComplete = async (activityId: string) => {
+    if (isActionLoading) return;
+    setIsActionLoading(true);
+
     try {
       await api.post('/logs/undo-complete', {
         logId: todayLog?._id,
@@ -139,10 +155,15 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
       fetchData();
     } catch (error) {
       console.error('Error undoing completed activity:', error);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const handleUndoMiss = async (activityId: string) => {
+    if (isActionLoading) return;
+    setIsActionLoading(true);
+
     try {
       await api.post('/logs/undo-miss', {
         logId: todayLog?._id,
@@ -151,6 +172,8 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
       fetchData();
     } catch (error) {
       console.error('Error undoing missed activity:', error);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -255,7 +278,8 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
                             </div>
                             <button
                               onClick={() => handleUndoComplete(activity._id)}
-                              className="flex items-center gap-1 text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                              disabled={isActionLoading}
+                              className="flex items-center gap-1 text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Undo"
                             >
                               <RotateCcw size={18} />
@@ -269,7 +293,8 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
                             </div>
                             <button
                               onClick={() => handleUndoMiss(activity._id)}
-                              className="flex items-center gap-1 text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                              disabled={isActionLoading}
+                              className="flex items-center gap-1 text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Undo"
                             >
                               <RotateCcw size={18} />
@@ -279,14 +304,16 @@ export default function Dashboard({ setIsAuthenticated }: DashboardProps) {
                           <>
                             <button
                               onClick={() => handleCompleteActivity(activity._id)}
-                              className="flex items-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                              disabled={isActionLoading}
+                              className="flex items-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <CheckCircle size={20} />
                               <span className="hidden sm:inline">Done</span>
                             </button>
                             <button
                               onClick={() => handleMissActivity(activity._id)}
-                              className="flex items-center gap-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                              disabled={isActionLoading}
+                              className="flex items-center gap-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <XCircle size={20} />
                               <span className="hidden sm:inline">Skip</span>
